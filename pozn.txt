@@ -1,0 +1,24 @@
+map(el => (el.id === id ? { ...el, checked: !checked } : el)))
+
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Karel",
+      "city": "Žabčice",
+      "age": 25
+    },
+    {
+      "id": 2,
+      "name": "Daniel",
+      "city": "Brno",
+      "age": 22
+    },
+    {
+      "id": 3,
+      "name": "Anna",
+      "city": "Praha",
+      "age": 30
+    }
+  ]
+}

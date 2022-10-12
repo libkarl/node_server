@@ -1,0 +1,20 @@
+{
+  "articles": [
+    {
+      "id": "1",
+      "title": "Hello from server",
+      "text": "We are here",
+      "slug": "hello-from-server",
+      "category": "coding",
+      "picture": "pic"
+    },
+    {
+      "id": "2",
+      "title": "Hello from server 2",
+      "text": "We are here",
+      "slug": "hello-from-server-buddy",
+      "category": "coding",
+      "picture": "pic"
+    }
+  ]
+}
