@@ -1,24 +1,22 @@
 map(el => (el.id === id ? { ...el, checked: !checked } : el)))
 
 {
-  "users": [
+  "articles": [
     {
       "id": 1,
-      "name": "Karel",
-      "city": "Žabčice",
-      "age": 25
+      "title": "Karel",
+      "text": "Praha",
+      "slug": "hello-there",
+      "category": "coding",
+      "picture": "pics"
     },
     {
       "id": 2,
-      "name": "Daniel",
-      "city": "Brno",
-      "age": 22
-    },
-    {
-      "id": 3,
-      "name": "Anna",
-      "city": "Praha",
-      "age": 30
+      "title": "Daniel",
+      "text": "Brno",
+      "slug": "hell-there",
+      "category": "coding",
+      "picture": "pics"
     }
   ]
 }

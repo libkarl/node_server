@@ -32,7 +32,7 @@ type Article = {
 
 const readDataFromJSON = () => {
   const dataString = fs.readFileSync(`${__dirname}/../${"data"}.json`, "utf-8");
-  return JSON.parse(dataString).articles;
+  return JSON.parse(dataString).articles as Article[];
 };
 
 const saveDataInJSON = (articles: Article[]) => {
@@ -57,8 +57,10 @@ app.post("/articles", (req, res) => {
     category: req.body.category,
     picture: availablePics[req.body.category],
   };
+  console.log(newPost);
   const posts = readDataFromJSON();
-  saveDataInJSON([newPost, ...posts]);
+  posts.push(newPost);
+  saveDataInJSON(posts);
   res.send(newPost);
 });
 
@@ -82,8 +84,12 @@ app.delete("/articles/:slug", (req, res) => {
 
 app.post("/articles/:slug", (req, res) => {
   const articleFromJSON = readDataFromJSON();
+  console.log("update hit");
+  console.log(req.body.updateText);
   const newArticlesState = articleFromJSON.map((post: Article) =>
-    post.slug === req.params.slug ? { ...post, text: req.body.text } : post
+    post.slug === req.body.slugToUpdate
+      ? { ...post, text: req.body.updateText }
+      : post
   );
   saveDataInJSON(newArticlesState);
   res.send(newArticlesState);

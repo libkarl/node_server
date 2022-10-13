@@ -42,8 +42,10 @@ app.post("/articles", (req, res) => {
         category: req.body.category,
         picture: data_1.availablePics[req.body.category],
     };
+    console.log(newPost);
     const posts = readDataFromJSON();
-    saveDataInJSON([newPost, ...posts]);
+    posts.push(newPost);
+    saveDataInJSON(posts);
     res.send(newPost);
 });
 app.get("/articles/:slug", (req, res) => {
@@ -60,7 +62,10 @@ app.delete("/articles/:slug", (req, res) => {
 });
 app.post("/articles/:slug", (req, res) => {
     const articleFromJSON = readDataFromJSON();
-    const newArticlesState = articleFromJSON.map((post) => post.slug === req.params.slug ? Object.assign(Object.assign({}, post), { text: req.body.text }) : post);
+    console.log("update hit");
+    console.log(req.body.updateText);
+    const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
+        ? Object.assign(Object.assign({}, post), { text: req.body.updateText }) : post);
     saveDataInJSON(newArticlesState);
     res.send(newArticlesState);
 });
