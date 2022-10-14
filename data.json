@@ -1,74 +1,26 @@
 {
   "articles": [
     {
-      "title": "test title",
-      "id": "d174af70-4ad8-11ed-9a5f-9f21afa19e0b",
-      "text": "Test text ",
-      "slug": "test-bum",
+      "title": "Design New Possibilities",
+      "id": "0fba3b20-4baa-11ed-bd2b-b7e546f01f65",
+      "text": "We are providing the newest feature which you can use in your design carrier every day. This is exclusive possibility to get new high valuable informetions.",
+      "slug": "design-revolution",
       "category": "digitalmarketing",
-      "picture": "https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+      "picture": "https://images.pexels.com/photos/414974/pexels-photo-414974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
     },
     {
-      "title": "test title",
-      "id": "d55719c0-4ad8-11ed-9a5f-9f21afa19e0b",
-      "text": "Test text ",
-      "slug": "test-title",
-      "category": "digitalmarketing",
-      "picture": "https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-    },
-    {
-      "title": "test title",
-      "id": "da72c760-4ad8-11ed-9a5f-9f21afa19e0b",
-      "text": "Test text  ss ",
-      "slug": "test-title",
-      "category": "cooding",
-      "picture": "https://images.pexels.com/photos/4974912/pexels-photo-4974912.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-    },
-    {
-      "title": "test title",
-      "id": "e3d54670-4ad8-11ed-9a5f-9f21afa19e0b",
-      "text": "Test text  ss s",
-      "slug": "test-title",
-      "category": "webdesign",
-      "picture": "https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-    },
-    {
-      "title": "test title",
-      "id": "ec982a20-4ad8-11ed-9a5f-9f21afa19e0b",
-      "text": "Test text  ss s s ",
-      "slug": "test-title",
+      "title": "Article Title",
+      "id": "60355fd0-4bc3-11ed-b028-3798c7f321e5",
+      "text": "We wrote this article to increase the amount of informtions available for design High Schools students. They can have access to the high valued informtions which are provided by our experts.",
+      "slug": "new-article-title",
       "category": "graphicdesign",
       "picture": "https://images.pexels.com/photos/414974/pexels-photo-414974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
     },
     {
-      "title": "new title",
-      "id": "574bfde0-4afe-11ed-9235-aba7b4a10fff",
-      "text": "Testing article text",
-      "slug": "new-title",
-      "category": "graphicdesign",
-      "picture": "https://images.pexels.com/photos/414974/pexels-photo-414974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-    },
-    {
-      "title": "new title",
-      "id": "96017560-4afe-11ed-9235-aba7b4a10fff",
-      "text": "",
-      "slug": "new-title",
-      "category": "graphicdesign",
-      "picture": "https://images.pexels.com/photos/414974/pexels-photo-414974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-    },
-    {
-      "title": "coding hits",
-      "id": "15c0dab0-4b0a-11ed-9235-aba7b4a10fff",
-      "text": "It is all about you selconfidence buddy.",
-      "slug": "coding-hits",
-      "category": "graphicdesign",
-      "picture": "https://images.pexels.com/photos/414974/pexels-photo-414974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-    },
-    {
-      "title": "Design Atributes",
-      "id": "58597fd0-4b0a-11ed-9235-aba7b4a10fff",
-      "text": "You have to work every day.",
-      "slug": "design-atributes",
+      "title": "Test-slug",
+      "id": "dcba3390-4bce-11ed-bfc3-3719f0ce48ce",
+      "text": "We wrote this article to increase the amount of informtions available for design High Schools students. They can have access to the high valued informtions which are provided by our experts.",
+      "slug": "test-slug",
       "category": "digitalmarketing",
       "picture": "https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
     }

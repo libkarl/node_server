@@ -63,9 +63,9 @@ app.delete("/articles/:slug", (req, res) => {
 app.post("/articles/:slug", (req, res) => {
     const articleFromJSON = readDataFromJSON();
     console.log("update hit");
-    console.log(req.body.updateText);
+    console.log(req.body.category);
     const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
-        ? Object.assign(Object.assign({}, post), { text: req.body.updateText }) : post);
+        ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category] }) : post);
     saveDataInJSON(newArticlesState);
     res.send(newArticlesState);
 });

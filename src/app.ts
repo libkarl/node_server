@@ -57,7 +57,6 @@ app.post("/articles", (req, res) => {
     category: req.body.category,
     picture: availablePics[req.body.category],
   };
-  console.log(newPost);
   const posts = readDataFromJSON();
   posts.push(newPost);
   saveDataInJSON(posts);
@@ -69,7 +68,6 @@ app.get("/articles/:slug", (req, res) => {
   const listedArticle: Article = posts.find(
     (post: Article) => post.slug === req.params.slug
   );
-  console.log(listedArticle);
   res.send(listedArticle);
 });
 
@@ -84,11 +82,16 @@ app.delete("/articles/:slug", (req, res) => {
 
 app.post("/articles/:slug", (req, res) => {
   const articleFromJSON = readDataFromJSON();
-  console.log("update hit");
-  console.log(req.body.updateText);
   const newArticlesState = articleFromJSON.map((post: Article) =>
     post.slug === req.body.slugToUpdate
-      ? { ...post, text: req.body.updateText }
+      ? {
+          ...post,
+          text: req.body.updateText,
+          category: req.body.category,
+          title: req.body.title,
+          picture: availablePics[req.body.category],
+          slug: slugify(req.body.title, options),
+        }
       : post
   );
   saveDataInJSON(newArticlesState);
