@@ -42,7 +42,6 @@ app.post("/articles", (req, res) => {
         category: req.body.category,
         picture: data_1.availablePics[req.body.category],
     };
-    console.log(newPost);
     const posts = readDataFromJSON();
     posts.push(newPost);
     saveDataInJSON(posts);
@@ -51,7 +50,6 @@ app.post("/articles", (req, res) => {
 app.get("/articles/:slug", (req, res) => {
     const posts = readDataFromJSON();
     const listedArticle = posts.find((post) => post.slug === req.params.slug);
-    console.log(listedArticle);
     res.send(listedArticle);
 });
 app.delete("/articles/:slug", (req, res) => {
@@ -62,10 +60,8 @@ app.delete("/articles/:slug", (req, res) => {
 });
 app.post("/articles/:slug", (req, res) => {
     const articleFromJSON = readDataFromJSON();
-    console.log("update hit");
-    console.log(req.body.category);
     const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
-        ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category] }) : post);
+        ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category], slug: (0, slugify_1.default)(req.body.title, options) }) : post);
     saveDataInJSON(newArticlesState);
     res.send(newArticlesState);
 });
