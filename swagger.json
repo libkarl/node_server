@@ -1,0 +1,147 @@
+{
+  "openapi": "3.0.0",
+  "info": { "title": "My Article Server Api", "version": "1.0.0" },
+  "security": [{ "baarerAuth": [] }],
+  "paths": {
+    "/articles": {
+      "get": {
+        "tags": ["Get All Articles"],
+        "description": "If there are available articles, it will return all articles.",
+        "responses": {
+          "200": { "description": "Success" },
+          "404": { "description": "Articles not found" }
+        }
+      },
+      "post": {
+        "tags": ["Save New Article"],
+        "description": "Returns all articles inside the databse",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "text", "category"],
+                "properties": {
+                  "title": { "type": "string", "default": "The article title" },
+                  "text": {
+                    "type": "string",
+                    "default": "The content of article"
+                  },
+                  "category": {
+                    "type": "string",
+                    "default": "Article category"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/articles/:slug": {
+      "get": {
+        "tags": ["Get Article by slug"],
+        "summary": "Get a single article by article slug",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["slug"],
+                "properties": {
+                  "slug": { "type": "string", "default": "article-slug" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "default": "Article ID" },
+                    "title": {
+                      "type": "string",
+                      "default": "The article title"
+                    },
+                    "text": {
+                      "type": "string",
+                      "default": "The content of article"
+                    },
+                    "category": {
+                      "type": "string",
+                      "default": "Article category"
+                    },
+                    "slug": { "type": "string", "default": "Article slug" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Article not found" }
+        }
+      },
+      "delete": {
+        "tags": ["Delete Article by slug"],
+        "summary": "Delete single article by slug",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["slug"],
+                "properties": {
+                  "slug": { "type": "string", "default": "article-slug" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Success" },
+          "404": { "description": "Article not found" }
+        }
+      },
+      "post": {
+        "tags": ["Update Existing Article by slug"],
+        "description": "This method will be update article by slug with submited values",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["slug", "title", "text", "category"],
+                "properties": {
+                  "title": { "type": "string", "default": "The article title" },
+                  "text": {
+                    "type": "string",
+                    "default": "The content of article"
+                  },
+                  "category": {
+                    "type": "string",
+                    "default": "Article category"
+                  },
+                  "slug": { "type": "string", "default": "article-slug" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Success" },
+          "404": { "description": "Article not found" }
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}

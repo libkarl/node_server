@@ -62,20 +62,49 @@ const saveJSON = (articles: Article[]) => {
  * @openapi
  * /articles:
  *  get:
- *    tag:
- *       - All Articles
- *        description: Responds if the app is up and running
- *        responses:
- *           200:
- *             description: All available articles sended
+ *     tags:
+ *     - Get All Articles
+ *     description: If there are available articles, it will return all articles.
+ *     responses:
+ *       200:
+ *         description: Success
  *
+ *       404:
+ *         description: Articles not found
  */
 
 app.get("/articles", async (req, res) => {
   res.send(await loadJSON());
-  res.sendStatus(200);
 });
 
+/**
+ * @openapi
+ * /articles:
+ *   post:
+ *     tags:
+ *       - Save New Article
+ *     description: Returns all articles inside the databse
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - text
+ *               - category
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 default: The article title
+ *               text:
+ *                 type: string
+ *                 default: The content of article
+ *               category:
+ *                 type: string
+ *                 default: Article category
+ */
 app.post("/articles", async (req, res) => {
   const newPost: Article = {
     title: req.body.title,
@@ -91,11 +120,83 @@ app.post("/articles", async (req, res) => {
   res.send(newPost);
 });
 
+/**
+ * @openapi
+ * '/articles/:slug':
+ *  get:
+ *     tags:
+ *     - Get Article by slug
+ *     summary: Get a single article by article slug
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slug
+ *             properties:
+ *               slug:
+ *                 type: string
+ *                 default: article-slug
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 default: Article ID
+ *               title:
+ *                 type: string
+ *                 default: The article title
+ *               text:
+ *                 type: string
+ *                 default: The content of article
+ *               category:
+ *                 type: string
+ *                 default: Article category
+ *               slug:
+ *                 type: string
+ *                 default: Article slug
+ *       404:
+ *         description: Article not found
+ */
+
 app.get("/articles/:slug", async (req, res) => {
   const posts = await loadJSON();
   const listedArticle = posts.find((post) => post.slug === req.params.slug);
   res.send(listedArticle);
 });
+
+/**
+ * @openapi
+ * '/articles/:slug':
+ *  delete:
+ *     tags:
+ *     - Delete Article by slug
+ *     summary: Delete single article by slug
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slug
+ *             properties:
+ *               slug:
+ *                 type: string
+ *                 default: article-slug
+ *     responses:
+ *       200:
+ *         description: Success
+ *       404:
+ *         description: Article not found
+ */
 
 app.delete("/articles/:slug", async (req, res) => {
   const articleFromJSON = await loadJSON();
@@ -105,6 +206,44 @@ app.delete("/articles/:slug", async (req, res) => {
   saveJSON(newArticlesState);
   res.send(newArticlesState);
 });
+
+/**
+ * @openapi
+ * /articles/:slug:
+ *   post:
+ *     tags:
+ *       - Update Existing Article by slug
+ *     description: This method will be update article by slug with submited values
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slug
+ *               - title
+ *               - text
+ *               - category
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 default: The article title
+ *               text:
+ *                 type: string
+ *                 default: The content of article
+ *               category:
+ *                 type: string
+ *                 default: Article category
+ *               slug:
+ *                 type: string
+ *                 default: article-slug
+ *     responses:
+ *       200:
+ *         description: Success
+ *       404:
+ *         description: Article not found
+ */
 
 app.post("/articles/:slug", async (req, res) => {
   const articleFromJSON = await loadJSON();
@@ -137,7 +276,8 @@ app.use(
   }
 );
 
+swaggerDoc(app);
+
 app.listen(port, () => {
   console.log(`It_Absolvent backend is running on port ${port}`);
-  swaggerDoc(app);
 });

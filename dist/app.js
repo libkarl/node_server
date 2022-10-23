@@ -59,18 +59,47 @@ const saveJSON = (articles) => {
  * @openapi
  * /articles:
  *  get:
- *    tag:
- *       - All Articles
- *        description: Responds if the app is up and running
- *        responses:
- *           200:
- *             description: All available articles sended
+ *     tags:
+ *     - Get All Articles
+ *     description: If there are available articles, it will return all articles.
+ *     responses:
+ *       200:
+ *         description: Success
  *
+ *       404:
+ *         description: Articles not found
  */
 app.get("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.send(yield loadJSON());
-    res.sendStatus(200);
 }));
+/**
+ * @openapi
+ * /articles:
+ *   post:
+ *     tags:
+ *       - Save New Article
+ *     description: Returns all articles inside the databse
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - text
+ *               - category
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 default: The article title
+ *               text:
+ *                 type: string
+ *                 default: The content of article
+ *               category:
+ *                 type: string
+ *                 default: Article category
+ */
 app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const newPost = {
         title: req.body.title,
@@ -85,17 +114,124 @@ app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     saveJSON(posts);
     res.send(newPost);
 }));
+/**
+ * @openapi
+ * '/articles/:slug':
+ *  get:
+ *     tags:
+ *     - Get Article by slug
+ *     summary: Get a single article by article slug
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slug
+ *             properties:
+ *               slug:
+ *                 type: string
+ *                 default: article-slug
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 default: Article ID
+ *               title:
+ *                 type: string
+ *                 default: The article title
+ *               text:
+ *                 type: string
+ *                 default: The content of article
+ *               category:
+ *                 type: string
+ *                 default: Article category
+ *               slug:
+ *                 type: string
+ *                 default: Article slug
+ *       404:
+ *         description: Article not found
+ */
 app.get("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const posts = yield loadJSON();
     const listedArticle = posts.find((post) => post.slug === req.params.slug);
     res.send(listedArticle);
 }));
+/**
+ * @openapi
+ * '/articles/:slug':
+ *  delete:
+ *     tags:
+ *     - Delete Article by slug
+ *     summary: Delete single article by slug
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slug
+ *             properties:
+ *               slug:
+ *                 type: string
+ *                 default: article-slug
+ *     responses:
+ *       200:
+ *         description: Success
+ *       404:
+ *         description: Article not found
+ */
 app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const articleFromJSON = yield loadJSON();
     const newArticlesState = articleFromJSON.filter((post) => post.slug !== req.params.slug);
     saveJSON(newArticlesState);
     res.send(newArticlesState);
 }));
+/**
+ * @openapi
+ * /articles/:slug:
+ *   post:
+ *     tags:
+ *       - Update Existing Article by slug
+ *     description: This method will be update article by slug with submited values
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - slug
+ *               - title
+ *               - text
+ *               - category
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 default: The article title
+ *               text:
+ *                 type: string
+ *                 default: The content of article
+ *               category:
+ *                 type: string
+ *                 default: Article category
+ *               slug:
+ *                 type: string
+ *                 default: article-slug
+ *     responses:
+ *       200:
+ *         description: Success
+ *       404:
+ *         description: Article not found
+ */
 app.post("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const articleFromJSON = yield loadJSON();
     const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
@@ -108,8 +244,8 @@ app.use((err, req, res, next) => {
     res.status(500).json("Server side error ");
     res.json(err);
 });
+(0, swagger_1.swaggerDoc)(app);
 app.listen(port, () => {
     console.log(`It_Absolvent backend is running on port ${port}`);
-    (0, swagger_1.swaggerDoc)(app);
 });
 //# sourceMappingURL=app.js.map
