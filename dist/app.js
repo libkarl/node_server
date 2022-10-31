@@ -14,7 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
-const fs_1 = __importDefault(require("fs"));
 const uuid_1 = require("uuid");
 const body_parser_1 = __importDefault(require("body-parser"));
 const slugify_1 = __importDefault(require("slugify"));
@@ -22,6 +21,7 @@ const data_1 = require("./helpers/data");
 const swagger_1 = require("./helpers/swagger");
 const app = (0, express_1.default)();
 const port = 1234;
+const localPath = `${__dirname}/../data.json`;
 const options = {
     replacement: "-",
     remove: undefined,
@@ -32,9 +32,16 @@ const options = {
 };
 app.use((0, cors_1.default)());
 app.use(body_parser_1.default.json());
+const fs = require("fs");
+const util = require("util");
+const readFile = util.promisify(fs.readFile);
+const readFiles = (path) => __awaiter(void 0, void 0, void 0, function* () {
+    const buf = yield readFile(path);
+    return JSON.parse(buf.toString("utf8"));
+});
 const loadJSON = () => {
     return new Promise((resolve, reject) => {
-        fs_1.default.readFile(`${__dirname}/../${"data"}.json`, "utf8", (err, content) => {
+        fs.readFile(`${__dirname}/../data.json`, "utf8", (err, content) => {
             if (err) {
                 reject(err);
             }
@@ -50,7 +57,7 @@ const loadJSON = () => {
     });
 };
 const saveJSON = (articles) => {
-    fs_1.default.writeFile(`${__dirname}/../data.json`, JSON.stringify({ articles }), (err) => {
+    fs.writeFile(`${__dirname}/../data.json`, JSON.stringify({ articles }), (err) => {
         if (err)
             throw err;
     });
@@ -109,7 +116,9 @@ app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         category: req.body.category,
         picture: data_1.availablePics[req.body.category],
     };
-    const posts = yield loadJSON();
+    const posts = yield readFiles(localPath).catch((err) => {
+        console.log(err);
+    });
     posts.push(newPost);
     saveJSON(posts);
     res.send(newPost);
@@ -190,7 +199,9 @@ app.get("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, funct
  *         description: Article not found
  */
 app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const articleFromJSON = yield loadJSON();
+    const articleFromJSON = yield readFiles(localPath).catch((err) => {
+        console.log(err);
+    });
     const newArticlesState = articleFromJSON.filter((post) => post.slug !== req.params.slug);
     saveJSON(newArticlesState);
     res.send(newArticlesState);
@@ -233,7 +244,9 @@ app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, fu
  *         description: Article not found
  */
 app.post("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const articleFromJSON = yield loadJSON();
+    const articleFromJSON = yield readFiles(localPath).catch((err) => {
+        console.log(err);
+    });
     const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
         ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category], slug: (0, slugify_1.default)(req.body.title, options) }) : post);
     saveJSON(newArticlesState);

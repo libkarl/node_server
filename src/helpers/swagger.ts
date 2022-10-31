@@ -24,7 +24,6 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 export const swaggerDoc = (app: Express) => {
-  console.log(JSON.stringify(swaggerSpec));
   let res = swaggerUi.setup(swaggerSpec);
   // Swager pager
   app.use("/docs", swaggerUi.serve, res);

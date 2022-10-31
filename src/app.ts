@@ -1,6 +1,5 @@
 import cors from "cors";
 import express from "express";
-import fs from "fs";
 import { v1 } from "uuid";
 import bodyParser from "body-parser";
 import slugify from "slugify";
@@ -10,6 +9,7 @@ import { swaggerDoc } from "./helpers/swagger";
 
 const app = express();
 const port = 1234;
+const localPath = `${__dirname}/../data.json`;
 
 const options = {
   replacement: "-",
@@ -32,9 +32,19 @@ type Article = {
   picture: string;
 };
 
+const fs = require("fs");
+const util = require("util");
+
+const readFile = util.promisify(fs.readFile);
+
+const readFiles = async (path) => {
+  const buf = await readFile(path);
+  return JSON.parse(buf.toString("utf8"));
+};
+
 const loadJSON = () => {
   return new Promise((resolve, reject) => {
-    fs.readFile(`${__dirname}/../${"data"}.json`, "utf8", (err, content) => {
+    fs.readFile(`${__dirname}/../data.json`, "utf8", (err, content) => {
       if (err) {
         reject(err);
       } else {
@@ -114,7 +124,9 @@ app.post("/articles", async (req, res) => {
     category: req.body.category,
     picture: availablePics[req.body.category],
   };
-  const posts: Article[] = await loadJSON();
+  const posts: Article[] = await readFiles(localPath).catch((err) => {
+    console.log(err);
+  });
   posts.push(newPost);
   saveJSON(posts);
   res.send(newPost);
@@ -199,7 +211,9 @@ app.get("/articles/:slug", async (req, res) => {
  */
 
 app.delete("/articles/:slug", async (req, res) => {
-  const articleFromJSON = await loadJSON();
+  const articleFromJSON = await readFiles(localPath).catch((err) => {
+    console.log(err);
+  });
   const newArticlesState = articleFromJSON.filter(
     (post) => post.slug !== req.params.slug
   );
@@ -246,7 +260,9 @@ app.delete("/articles/:slug", async (req, res) => {
  */
 
 app.post("/articles/:slug", async (req, res) => {
-  const articleFromJSON = await loadJSON();
+  const articleFromJSON = await readFiles(localPath).catch((err) => {
+    console.log(err);
+  });
   const newArticlesState = articleFromJSON.map((post: Article) =>
     post.slug === req.body.slugToUpdate
       ? {
