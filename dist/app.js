@@ -39,23 +39,6 @@ const readFiles = (path) => __awaiter(void 0, void 0, void 0, function* () {
     const buf = yield readFile(path);
     return JSON.parse(buf.toString("utf8"));
 });
-const loadJSON = () => {
-    return new Promise((resolve, reject) => {
-        fs.readFile(`${__dirname}/../data.json`, "utf8", (err, content) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                try {
-                    resolve(JSON.parse(content).articles);
-                }
-                catch (err) {
-                    reject(err);
-                }
-            }
-        });
-    });
-};
 const saveJSON = (articles) => {
     fs.writeFile(`${__dirname}/../data.json`, JSON.stringify({ articles }), (err) => {
         if (err)
@@ -77,7 +60,7 @@ const saveJSON = (articles) => {
  *         description: Articles not found
  */
 app.get("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.send(yield loadJSON());
+    res.send(yield readFiles(localPath));
 }));
 /**
  * @openapi
@@ -116,9 +99,7 @@ app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         category: req.body.category,
         picture: data_1.availablePics[req.body.category],
     };
-    const posts = yield readFiles(localPath).catch((err) => {
-        console.log(err);
-    });
+    const posts = yield readFiles(localPath);
     posts.push(newPost);
     saveJSON(posts);
     res.send(newPost);
@@ -169,7 +150,7 @@ app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* 
  *         description: Article not found
  */
 app.get("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const posts = yield loadJSON();
+    const posts = yield readFiles(localPath);
     const listedArticle = posts.find((post) => post.slug === req.params.slug);
     res.send(listedArticle);
 }));
@@ -199,9 +180,7 @@ app.get("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, funct
  *         description: Article not found
  */
 app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const articleFromJSON = yield readFiles(localPath).catch((err) => {
-        console.log(err);
-    });
+    const articleFromJSON = yield readFiles(localPath);
     const newArticlesState = articleFromJSON.filter((post) => post.slug !== req.params.slug);
     saveJSON(newArticlesState);
     res.send(newArticlesState);
@@ -244,9 +223,7 @@ app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, fu
  *         description: Article not found
  */
 app.post("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const articleFromJSON = yield readFiles(localPath).catch((err) => {
-        console.log(err);
-    });
+    const articleFromJSON = yield readFiles(localPath);
     const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
         ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category], slug: (0, slugify_1.default)(req.body.title, options) }) : post);
     saveJSON(newArticlesState);

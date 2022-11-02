@@ -37,25 +37,9 @@ const util = require("util");
 
 const readFile = util.promisify(fs.readFile);
 
-const readFiles = async (path) => {
+const readFiles = async (path: string): Promise<Article[]> => {
   const buf = await readFile(path);
   return JSON.parse(buf.toString("utf8"));
-};
-
-const loadJSON = () => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(`${__dirname}/../data.json`, "utf8", (err, content) => {
-      if (err) {
-        reject(err);
-      } else {
-        try {
-          resolve(JSON.parse(content).articles);
-        } catch (err) {
-          reject(err);
-        }
-      }
-    });
-  }) as Promise<Article[]>;
 };
 
 const saveJSON = (articles: Article[]) => {
@@ -84,7 +68,7 @@ const saveJSON = (articles: Article[]) => {
  */
 
 app.get("/articles", async (req, res) => {
-  res.send(await loadJSON());
+  res.send(await readFiles(localPath));
 });
 
 /**
@@ -124,9 +108,7 @@ app.post("/articles", async (req, res) => {
     category: req.body.category,
     picture: availablePics[req.body.category],
   };
-  const posts: Article[] = await readFiles(localPath).catch((err) => {
-    console.log(err);
-  });
+  const posts = await readFiles(localPath);
   posts.push(newPost);
   saveJSON(posts);
   res.send(newPost);
@@ -179,7 +161,7 @@ app.post("/articles", async (req, res) => {
  */
 
 app.get("/articles/:slug", async (req, res) => {
-  const posts = await loadJSON();
+  const posts = await readFiles(localPath);
   const listedArticle = posts.find((post) => post.slug === req.params.slug);
   res.send(listedArticle);
 });
@@ -211,9 +193,7 @@ app.get("/articles/:slug", async (req, res) => {
  */
 
 app.delete("/articles/:slug", async (req, res) => {
-  const articleFromJSON = await readFiles(localPath).catch((err) => {
-    console.log(err);
-  });
+  const articleFromJSON = await readFiles(localPath);
   const newArticlesState = articleFromJSON.filter(
     (post) => post.slug !== req.params.slug
   );
@@ -260,9 +240,7 @@ app.delete("/articles/:slug", async (req, res) => {
  */
 
 app.post("/articles/:slug", async (req, res) => {
-  const articleFromJSON = await readFiles(localPath).catch((err) => {
-    console.log(err);
-  });
+  const articleFromJSON = await readFiles(localPath);
   const newArticlesState = articleFromJSON.map((post: Article) =>
     post.slug === req.body.slugToUpdate
       ? {
