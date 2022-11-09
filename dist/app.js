@@ -37,7 +37,7 @@ const util = require("util");
 const readFile = util.promisify(fs.readFile);
 const readFiles = (path) => __awaiter(void 0, void 0, void 0, function* () {
     const buf = yield readFile(path);
-    return JSON.parse(buf.toString("utf8"));
+    return JSON.parse(buf.toString("utf8")).articles;
 });
 const saveJSON = (articles) => {
     fs.writeFile(`${__dirname}/../data.json`, JSON.stringify({ articles }), (err) => {
@@ -224,6 +224,7 @@ app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, fu
  */
 app.post("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const articleFromJSON = yield readFiles(localPath);
+    console.log(articleFromJSON);
     const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
         ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category], slug: (0, slugify_1.default)(req.body.title, options) }) : post);
     saveJSON(newArticlesState);

@@ -39,7 +39,7 @@ const readFile = util.promisify(fs.readFile);
 
 const readFiles = async (path: string): Promise<Article[]> => {
   const buf = await readFile(path);
-  return JSON.parse(buf.toString("utf8"));
+  return JSON.parse(buf.toString("utf8")).articles;
 };
 
 const saveJSON = (articles: Article[]) => {
@@ -241,6 +241,7 @@ app.delete("/articles/:slug", async (req, res) => {
 
 app.post("/articles/:slug", async (req, res) => {
   const articleFromJSON = await readFiles(localPath);
+
   const newArticlesState = articleFromJSON.map((post: Article) =>
     post.slug === req.body.slugToUpdate
       ? {

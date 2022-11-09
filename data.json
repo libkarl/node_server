@@ -1,10 +1,10 @@
 {
   "articles": [
     {
-      "title": "Title Design",
+      "title": "Title Design Live",
       "id": "0fba3b20-4baa-11ed-bd2b-b7e546f01f65",
       "text": "We are providing the newest feature which you can use in your design carrier every day. This is exclusive possibility to get new high valuable informetions.",
-      "slug": "title-design",
+      "slug": "title-design-live",
       "category": "graphicdesign",
       "picture": "https://images.pexels.com/photos/414974/pexels-photo-414974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
     },
@@ -23,6 +23,14 @@
       "slug": "test-slug",
       "category": "digitalmarketing",
       "picture": "https://images.pexels.com/photos/905163/pexels-photo-905163.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+    },
+    {
+      "title": "Testing Article",
+      "id": "181af130-605c-11ed-a0a1-97317c34531d",
+      "text": "We wrote this article to increase the amount of informtions available for design High Schools students. They can have access to the high valued informtions which are provided by our experts.",
+      "slug": "testing-article",
+      "category": "graphicdesign",
+      "picture": "https://images.pexels.com/photos/414974/pexels-photo-414974.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
     }
   ]
 }
