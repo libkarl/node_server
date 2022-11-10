@@ -9,6 +9,8 @@ import { swaggerDoc } from "./helpers/swagger";
 
 const app = express();
 const port = 1234;
+const logger = require("morgan");
+app.use(logger("dev"));
 const localPath = `${__dirname}/../data.json`;
 
 const options = {
@@ -36,20 +38,27 @@ const fs = require("fs");
 const util = require("util");
 
 const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
 
 const readFiles = async (path: string): Promise<Article[]> => {
-  const buf = await readFile(path);
-  return JSON.parse(buf.toString("utf8")).articles;
+  try {
+    const buf = await readFile(path);
+    return JSON.parse(buf.toString("utf8")).articles;
+  } catch (error) {
+    return error;
+  }
 };
 
-const saveJSON = (articles: Article[]) => {
-  fs.writeFile(
-    `${__dirname}/../data.json`,
-    JSON.stringify({ articles }),
-    (err) => {
-      if (err) throw err;
-    }
-  );
+const saveJSON = async (articles: Article[]): Promise<undefined | Error> => {
+  try {
+    const saveResult = await writeFile(
+      `${__dirname}/../data.json`,
+      JSON.stringify({ articles })
+    );
+    return saveResult;
+  } catch (error) {
+    return error;
+  }
 };
 
 /**
@@ -67,8 +76,13 @@ const saveJSON = (articles: Article[]) => {
  *         description: Articles not found
  */
 
-app.get("/articles", async (req, res) => {
-  res.send(await readFiles(localPath));
+app.get("/articles", async (req, res, next) => {
+  const jsonData = await readFiles(localPath);
+  if (jsonData instanceof Error) {
+    next(jsonData);
+  } else {
+    res.send(jsonData);
+  }
 });
 
 /**
@@ -99,8 +113,8 @@ app.get("/articles", async (req, res) => {
  *                 type: string
  *                 default: Article category
  */
-app.post("/articles", async (req, res) => {
-  const newPost: Article = {
+app.post("/articles", async (req, res, next) => {
+  const newPost = {
     title: req.body.title,
     id: v1(),
     text: req.body.text,
@@ -109,9 +123,15 @@ app.post("/articles", async (req, res) => {
     picture: availablePics[req.body.category],
   };
   const posts = await readFiles(localPath);
-  posts.push(newPost);
-  saveJSON(posts);
-  res.send(newPost);
+  if (posts instanceof Error) {
+    next(posts);
+  } else {
+    posts.push(newPost);
+    const saveResult = await saveJSON(posts);
+    saveResult instanceof Error && saveResult !== undefined
+      ? next(saveResult)
+      : res.send(posts);
+  }
 });
 
 /**
@@ -160,10 +180,15 @@ app.post("/articles", async (req, res) => {
  *         description: Article not found
  */
 
-app.get("/articles/:slug", async (req, res) => {
+app.get("/articles/:slug", async (req, res, next) => {
   const posts = await readFiles(localPath);
-  const listedArticle = posts.find((post) => post.slug === req.params.slug);
-  res.send(listedArticle);
+  if (posts instanceof Error) {
+    next(posts);
+  } else {
+    const lookingPost = posts.find((post) => post.slug === req.params.slug);
+
+    lookingPost === undefined ? res.sendStatus(404) : res.send(lookingPost);
+  }
 });
 
 /**
@@ -192,13 +217,23 @@ app.get("/articles/:slug", async (req, res) => {
  *         description: Article not found
  */
 
-app.delete("/articles/:slug", async (req, res) => {
+app.delete("/articles/:slug", async (req, res, next) => {
   const articleFromJSON = await readFiles(localPath);
-  const newArticlesState = articleFromJSON.filter(
-    (post) => post.slug !== req.params.slug
-  );
-  saveJSON(newArticlesState);
-  res.send(newArticlesState);
+  if (articleFromJSON instanceof Error) {
+    next(articleFromJSON);
+  } else {
+    const newArticlesState = articleFromJSON.filter(
+      (post) => post.slug !== req.params.slug
+    );
+    if (articleFromJSON.length === newArticlesState.length) {
+      res.sendStatus(404);
+    } else {
+      const saveResult = await saveJSON(newArticlesState);
+      saveResult instanceof Error && saveResult !== undefined
+        ? next(saveResult)
+        : res.send(newArticlesState);
+    }
+  }
 });
 
 /**
@@ -239,23 +274,36 @@ app.delete("/articles/:slug", async (req, res) => {
  *         description: Article not found
  */
 
-app.post("/articles/:slug", async (req, res) => {
+app.post("/articles/:slug", async (req, res, next) => {
   const articleFromJSON = await readFiles(localPath);
+  if (articleFromJSON instanceof Error) {
+    next(articleFromJSON);
+  } else {
+    const newArticlesState = articleFromJSON.map((post: Article) =>
+      post.slug === req.body.slugToUpdate
+        ? {
+            ...post,
+            text: req.body.updateText,
+            category: req.body.category,
+            title: req.body.title,
+            picture: availablePics[req.body.category],
+            slug: slugify(req.body.title, options),
+          }
+        : post
+    );
+    const updatedArticle = newArticlesState.find(
+      (article) => article.slug === slugify(req.body.title, options)
+    );
 
-  const newArticlesState = articleFromJSON.map((post: Article) =>
-    post.slug === req.body.slugToUpdate
-      ? {
-          ...post,
-          text: req.body.updateText,
-          category: req.body.category,
-          title: req.body.title,
-          picture: availablePics[req.body.category],
-          slug: slugify(req.body.title, options),
-        }
-      : post
-  );
-  saveJSON(newArticlesState);
-  res.send(newArticlesState);
+    if (updatedArticle === undefined) {
+      res.sendStatus(404);
+    } else {
+      const saveResult = await saveJSON(newArticlesState);
+      saveResult instanceof Error && saveResult !== undefined
+        ? next(saveResult)
+        : res.send(updatedArticle);
+    }
+  }
 });
 
 app.use(

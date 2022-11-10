@@ -21,6 +21,8 @@ const data_1 = require("./helpers/data");
 const swagger_1 = require("./helpers/swagger");
 const app = (0, express_1.default)();
 const port = 1234;
+const logger = require("morgan");
+app.use(logger("dev"));
 const localPath = `${__dirname}/../data.json`;
 const options = {
     replacement: "-",
@@ -35,16 +37,25 @@ app.use(body_parser_1.default.json());
 const fs = require("fs");
 const util = require("util");
 const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
 const readFiles = (path) => __awaiter(void 0, void 0, void 0, function* () {
-    const buf = yield readFile(path);
-    return JSON.parse(buf.toString("utf8")).articles;
+    try {
+        const buf = yield readFile(path);
+        return JSON.parse(buf.toString("utf8")).articles;
+    }
+    catch (error) {
+        return error;
+    }
 });
-const saveJSON = (articles) => {
-    fs.writeFile(`${__dirname}/../data.json`, JSON.stringify({ articles }), (err) => {
-        if (err)
-            throw err;
-    });
-};
+const saveJSON = (articles) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const saveResult = yield writeFile(`${__dirname}/../data.json`, JSON.stringify({ articles }));
+        return saveResult;
+    }
+    catch (error) {
+        return error;
+    }
+});
 /**
  * @openapi
  * /articles:
@@ -59,8 +70,14 @@ const saveJSON = (articles) => {
  *       404:
  *         description: Articles not found
  */
-app.get("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.send(yield readFiles(localPath));
+app.get("/articles", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const jsonData = yield readFiles(localPath);
+    if (jsonData instanceof Error) {
+        next(jsonData);
+    }
+    else {
+        res.send(jsonData);
+    }
 }));
 /**
  * @openapi
@@ -90,7 +107,7 @@ app.get("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* (
  *                 type: string
  *                 default: Article category
  */
-app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/articles", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const newPost = {
         title: req.body.title,
         id: (0, uuid_1.v1)(),
@@ -100,9 +117,17 @@ app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* 
         picture: data_1.availablePics[req.body.category],
     };
     const posts = yield readFiles(localPath);
-    posts.push(newPost);
-    saveJSON(posts);
-    res.send(newPost);
+    console.log(posts);
+    if (posts instanceof Error) {
+        next(posts);
+    }
+    else {
+        posts.push(newPost);
+        const saveResult = yield saveJSON(posts);
+        saveResult instanceof Error && saveResult !== undefined
+            ? next(saveResult)
+            : res.send(posts);
+    }
 }));
 /**
  * @openapi
@@ -149,10 +174,15 @@ app.post("/articles", (req, res) => __awaiter(void 0, void 0, void 0, function* 
  *       404:
  *         description: Article not found
  */
-app.get("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/articles/:slug", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const posts = yield readFiles(localPath);
-    const listedArticle = posts.find((post) => post.slug === req.params.slug);
-    res.send(listedArticle);
+    if (posts instanceof Error) {
+        next(posts);
+    }
+    else {
+        const lookingPost = posts.find((post) => post.slug === req.params.slug);
+        lookingPost === undefined ? res.sendStatus(404) : res.send(lookingPost);
+    }
 }));
 /**
  * @openapi
@@ -179,11 +209,23 @@ app.get("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, funct
  *       404:
  *         description: Article not found
  */
-app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.delete("/articles/:slug", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const articleFromJSON = yield readFiles(localPath);
-    const newArticlesState = articleFromJSON.filter((post) => post.slug !== req.params.slug);
-    saveJSON(newArticlesState);
-    res.send(newArticlesState);
+    if (articleFromJSON instanceof Error) {
+        next(articleFromJSON);
+    }
+    else {
+        const newArticlesState = articleFromJSON.filter((post) => post.slug !== req.params.slug);
+        if (articleFromJSON.length === newArticlesState.length) {
+            res.sendStatus(404);
+        }
+        else {
+            const saveResult = yield saveJSON(newArticlesState);
+            saveResult instanceof Error && saveResult !== undefined
+                ? next(saveResult)
+                : res.send(newArticlesState);
+        }
+    }
 }));
 /**
  * @openapi
@@ -222,13 +264,25 @@ app.delete("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, fu
  *       404:
  *         description: Article not found
  */
-app.post("/articles/:slug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/articles/:slug", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const articleFromJSON = yield readFiles(localPath);
-    console.log(articleFromJSON);
-    const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
-        ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category], slug: (0, slugify_1.default)(req.body.title, options) }) : post);
-    saveJSON(newArticlesState);
-    res.send(newArticlesState);
+    if (articleFromJSON instanceof Error) {
+        next(articleFromJSON);
+    }
+    else {
+        const newArticlesState = articleFromJSON.map((post) => post.slug === req.body.slugToUpdate
+            ? Object.assign(Object.assign({}, post), { text: req.body.updateText, category: req.body.category, title: req.body.title, picture: data_1.availablePics[req.body.category], slug: (0, slugify_1.default)(req.body.title, options) }) : post);
+        const updatedArticle = newArticlesState.find((article) => article.slug === (0, slugify_1.default)(req.body.title, options));
+        if (updatedArticle === undefined) {
+            res.sendStatus(404);
+        }
+        else {
+            const saveResult = yield saveJSON(newArticlesState);
+            saveResult instanceof Error && saveResult !== undefined
+                ? next(saveResult)
+                : res.send(updatedArticle);
+        }
+    }
 }));
 app.use((err, req, res, next) => {
     console.error(err);
